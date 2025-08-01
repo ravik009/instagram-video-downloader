@@ -1,34 +1,43 @@
 import { Metadata } from "next";
 
-export const siteConfig = {
-  name: "GramGrabberz",
-  domain: "gram-grabberz.vercel.com",
-  shortName: "GramGrabberz",
-  creator: "riad-azz",
-  description:
-    "Fast, free, and no login required. Just paste the URL and download.",
-  ogDescription:
-    "Fast, free, and no login required. Just paste the URL and download.",
-  url: "https://gram-grabberz.vercel.com",
-};
+export const site = {
+  name: "InstaSaver",
+  description: "Download Instagram videos, photos, reels, and stories",
+  shortName: "InstaSaver",
+  url: "https://instasaver.app",
+  ogImage: "https://instasaver.app/og.jpg",
+  links: {
+    twitter: "https://twitter.com/instasaver",
+    github: "https://github.com/instasaver",
+  },
+} as const;
 
 export const siteMetadata: Metadata = {
-  title: siteConfig.name,
-  description: siteConfig.description,
-  creator: siteConfig.creator,
+  title: site.name,
+  description: site.description,
+  creator: "riad-azz",
   openGraph: {
     type: "website",
     locale: "en_US",
-    title: siteConfig.name,
-    description: siteConfig.ogDescription,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
+    title: site.name,
+    description: site.description,
+    url: site.url,
+    siteName: site.name,
+    images: [
+      {
+        url: site.ogImage,
+        width: 1200,
+        height: 630,
+        alt: site.name,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.name,
-    description: siteConfig.ogDescription,
-    creator: siteConfig.creator,
+    title: site.name,
+    description: site.description,
+    creator: "riad-azz",
+    images: [site.ogImage],
   },
   robots: {
     index: false,

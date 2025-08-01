@@ -1,4 +1,4 @@
-import HomePage from "./page-content";
+import { PageContent } from "./page-content";
 
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -12,4 +12,4 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default HomePage;
+export default PageContent;

@@ -1,26 +1,37 @@
 import { Hero } from "./_components/hero";
 import { Features } from "./_components/features";
 import { HowItWorks } from "./_components/how-it-works";
-import { Testimonials } from "./_components/testimonials";
 import { FrequentlyAsked } from "./_components/frequently-asked";
+import { Testimonials } from "./_components/testimonials";
+import { Footer } from "./_components/footer";
+import { HeaderAd, InContentAd, FooterAd } from "@/components/ads/enhanced-ads";
 
-export default function HomePage() {
+export function PageContent() {
   return (
-    <div>
-      {/* Hero Section */}
+    <>
+      {/* Header Ad */}
+      <HeaderAd />
+      
       <Hero />
-
-      {/* Features Section */}
+      
+      {/* In-content ad after hero */}
+      <InContentAd />
+      
       <Features />
-
-      {/* How It Works Section */}
+      
       <HowItWorks />
-
-      {/* Testimonials Section */}
-      <Testimonials />
-
-      {/* FAQ Section */}
+      
+      {/* In-content ad before FAQ */}
+      <InContentAd />
+      
       <FrequentlyAsked />
-    </div>
+      
+      <Testimonials />
+      
+      {/* Footer Ad */}
+      <FooterAd />
+      
+      <Footer />
+    </>
   );
 }

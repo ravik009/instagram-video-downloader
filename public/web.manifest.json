@@ -1,11 +1,18 @@
 {
-  "name": "Gram Grabberz",
-  "short_name": "GramGrabberz",
-  "description": "Fast, free, and no login required. Just paste the URL and download.",
+  "name": "InstaSaver - Instagram Video Downloader",
+  "short_name": "InstaSaver",
+  "description": "Download Instagram videos, photos, reels, and stories",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4285f4",
+  "theme_color": "#14b8a6",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
   "related_applications": [],
   "prefer_related_applications": false,
   "scope": "/",

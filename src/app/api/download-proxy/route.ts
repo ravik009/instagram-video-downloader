@@ -4,7 +4,30 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const fileUrl = searchParams.get("url");
-  const filename = searchParams.get("filename") || "gram-grabberz-video.mp4"; // Default filename
+  let filename = searchParams.get("filename"); // Default is undefined
+
+  // If filename is not provided, extract from fileUrl
+  if (!filename && fileUrl) {
+    try {
+      const urlObj = new URL(fileUrl);
+      const pathname = urlObj.pathname;
+      let extractedFilename = pathname.substring(pathname.lastIndexOf('/') + 1);
+      
+      // If no extension found, determine based on URL or content type
+      if (!extractedFilename.includes('.')) {
+        // Check if it's likely a video or image based on URL patterns
+        if (fileUrl.includes('video') || fileUrl.includes('mp4')) {
+          extractedFilename = extractedFilename + '.mp4';
+        } else {
+          extractedFilename = extractedFilename + '.jpg';
+        }
+      }
+      
+      filename = extractedFilename || "media.mp4";
+    } catch {
+      filename = "media.mp4";
+    }
+  }
 
   if (!fileUrl) {
     return NextResponse.json(
@@ -22,38 +45,39 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch the video from the external URL
-    const videoResponse = await fetch(fileUrl);
+    // Fetch the media from the external URL
+    const mediaResponse = await fetch(fileUrl);
 
-    if (!videoResponse.ok) {
-      throw new Error(`Failed to fetch video: ${videoResponse.statusText}`);
+    if (!mediaResponse.ok) {
+      throw new Error(`Failed to fetch media: ${mediaResponse.statusText}`);
     }
 
-    // Get the video data as a ReadableStream
-    const videoStream = videoResponse.body;
+    // Get the media data as a ReadableStream
+    const mediaStream = mediaResponse.body;
 
-    if (!videoStream) {
-      throw new Error("Video stream is not available");
+    if (!mediaStream) {
+      throw new Error("Media stream is not available");
     }
 
     // Set headers to force download
     const headers = new Headers();
-    headers.set("Content-Disposition", `attachment; filename="${filename}"`);
-    // Try to get Content-Type from original response, fallback to generic video type
+    headers.set("Content-Disposition", `attachment; filename=\"${filename}\"`);
+    // Try to get Content-Type from original response, fallback to appropriate type
+    const contentType = mediaResponse.headers.get("Content-Type");
     headers.set(
       "Content-Type",
-      videoResponse.headers.get("Content-Type") || "video/mp4"
+      contentType || (filename?.includes('.mp4') ? "video/mp4" : "image/jpeg")
     );
     // Optionally set Content-Length if available
-    if (videoResponse.headers.get("Content-Length")) {
+    if (mediaResponse.headers.get("Content-Length")) {
       headers.set(
         "Content-Length",
-        videoResponse.headers.get("Content-Length")!
+        mediaResponse.headers.get("Content-Length")!
       );
     }
 
     // Return the stream response
-    return new NextResponse(videoStream, {
+    return new NextResponse(mediaStream, {
       status: 200,
       headers: headers,
     });

@@ -36,11 +36,25 @@ export async function GET(_: NextRequest, context: RouteContext) {
         );
       }
 
-      if (!data.xdt_shortcode_media.is_video) {
-        return NextResponse.json(
-          { error: "notVideo", message: "post is not a video" },
-          { status: 400 }
-        );
+      // Support both videos and photos
+      const media = data.xdt_shortcode_media;
+      
+      if (media.is_video) {
+        // Video post
+        if (!media.video_url) {
+          return NextResponse.json(
+            { error: "noVideoUrl", message: "video URL not found" },
+            { status: 400 }
+          );
+        }
+      } else {
+        // Photo post
+        if (!media.display_url) {
+          return NextResponse.json(
+            { error: "noPhotoUrl", message: "photo URL not found" },
+            { status: 400 }
+          );
+        }
       }
 
       return NextResponse.json({ data }, { status: 200 });

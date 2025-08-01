@@ -20,11 +20,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { Download, Loader2, X } from "lucide-react";
+import { Download, Loader2, X, Link, Sparkles, AlertTriangle } from "lucide-react";
 
 import { cn, getPostShortcode, isShortcodePresent } from "@/lib/utils";
 import { useGetInstagramPostMutation } from "@/features/react-query/mutations/instagram";
 import { HTTP_CODE_ENUM } from "@/features/api/http-codes";
+import { DownloadPageAd } from "@/components/ads/enhanced-ads";
 
 // 5 minutes
 const CACHE_TIME = 5 * 60 * 1000;
@@ -53,13 +54,10 @@ function triggerDownload(videoUrl: string) {
   // Ensure we are in a browser environment
   if (typeof window === "undefined") return;
 
-  const randomTime = new Date().getTime().toString().slice(-8);
-  const filename = `gram-grabberz-${randomTime}.mp-4`;
-
   // Construct the URL to your proxy API route
   const proxyUrl = new URL("/api/download-proxy", window.location.origin); // Use relative path + origin
   proxyUrl.searchParams.append("url", videoUrl);
-  proxyUrl.searchParams.append("filename", filename);
+  // Don't pass filename parameter - let backend extract from URL
 
   console.log("Using proxy URL:", proxyUrl.toString()); // For debugging
 
@@ -68,10 +66,8 @@ function triggerDownload(videoUrl: string) {
   link.href = proxyUrl.toString();
   link.target = "_blank";
 
-  // The 'download' attribute here is less critical because the proxy
-  // sets the Content-Disposition header, but it can still be helpful
-  // as a fallback or hint for the browser. Keep the desired filename.
-  link.setAttribute("download", filename);
+  // Don't set download attribute - let backend handle filename
+  // link.setAttribute("download", filename);
 
   // Append link to the body temporarily
   document.body.appendChild(link);
@@ -177,7 +173,17 @@ export function InstagramForm(props: { className?: string }) {
       const { data, status } = await getInstagramPost({ shortcode });
 
       if (status === HTTP_CODE_ENUM.OK) {
-        const downloadUrl = data.data.xdt_shortcode_media.video_url;
+        const media = data.data.xdt_shortcode_media;
+        let downloadUrl: string | null = null;
+
+        if (media.is_video) {
+          // Video post
+          downloadUrl = media.video_url;
+        } else {
+          // Photo post
+          downloadUrl = media.display_url;
+        }
+
         if (downloadUrl) {
           triggerDownload(downloadUrl);
           setCachedUrl(shortcode, downloadUrl);
@@ -187,7 +193,7 @@ export function InstagramForm(props: { className?: string }) {
             duration: 1500,
           });
         } else {
-          throw new Error("Video URL not found");
+          throw new Error("Media URL not found");
         }
       } else if (
         status === HTTP_CODE_ENUM.NOT_FOUND ||
@@ -206,7 +212,7 @@ export function InstagramForm(props: { className?: string }) {
           });
         }
       } else {
-        throw new Error("Failed to fetch video");
+        throw new Error("Failed to fetch media");
       }
     } catch (error) {
       console.error(error);
@@ -223,66 +229,111 @@ export function InstagramForm(props: { className?: string }) {
   }, []);
 
   return (
-    <div className={cn("w-full space-y-2", props.className)}>
-      {errorMessage ? (
-        <p className="h-4 text-sm text-red-500 sm:text-start">{errorMessage}</p>
-      ) : (
-        <div className="h-4"></div>
-      )}
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full flex-col gap-2 sm:flex-row sm:items-end"
-        >
-          <FormField
-            control={form.control}
-            name="url"
-            rules={{ required: true }}
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel className="sr-only">
-                  {t("inputs.url.label")}
-                </FormLabel>
-                <FormControl>
-                  <div className="relative w-full">
-                    <Input
-                      {...field}
-                      type="url"
-                      ref={inputRef}
-                      minLength={1}
-                      maxLength={255}
-                      placeholder={t("inputs.url.placeholder")}
-                    />
-                    {isShowClearButton && (
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={clearUrlField}
-                        className="absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 cursor-pointer"
-                      >
-                        <X className="text-red-500" />
-                      </Button>
-                    )}
-                  </div>
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <Button
-            disabled={isDisabled}
-            type="submit"
-            className="bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600"
+    <div className={cn("w-full space-y-4", props.className)}>
+      {/* Enhanced form container with glassmorphism effect */}
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl p-6 md:p-8">
+        {/* Form header */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center space-x-2 mb-3">
+            <Link className="h-5 w-5 text-blue-500" />
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              Paste Instagram URL
+            </h2>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Download videos, photos, reels, and stories in high quality
+          </p>
+        </div>
+
+        {errorMessage ? (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
+            <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
+          </div>
+        ) : (
+          <div className="h-4"></div>
+        )}
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
           >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-            {t("submit")}
-          </Button>
-        </form>
-      </Form>
-      <p className="text-muted-foreground text-center text-xs">{t("hint")}</p>
+            <FormField
+              control={form.control}
+              name="url"
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="sr-only">
+                    {t("inputs.url.label")}
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative w-full">
+                      <Input
+                        {...field}
+                        type="url"
+                        ref={inputRef}
+                        minLength={1}
+                        maxLength={255}
+                        placeholder={t("inputs.url.placeholder")}
+                        className="h-14 text-lg border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-200 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                      />
+                      {isShowClearButton && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={clearUrlField}
+                          className="absolute top-1/2 right-3 h-8 w-8 -translate-y-1/2 cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full"
+                        >
+                          <X className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <Button
+              disabled={isDisabled}
+              type="submit"
+              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isPending ? (
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              ) : (
+                <Download className="h-5 w-5 mr-2" />
+              )}
+              {isPending ? "Processing..." : t("submit")}
+            </Button>
+          </form>
+        </Form>
+
+        {/* Enhanced hint with icon */}
+        <div className="mt-6 text-center">
+          <div className="flex items-center justify-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
+            <Sparkles className="h-3 w-3" />
+            <span>{t("hint")}</span>
+          </div>
+          
+          {/* Copyright Warning - Hidden */}
+          {/* 
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+            <div className="flex items-start space-x-2">
+              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+              <div className="text-xs text-yellow-800 dark:text-yellow-200">
+                <p className="font-medium mb-1">Copyright Notice:</p>
+                <p>Only download content you own or have permission to use. Respect copyright laws and fair use guidelines. 
+                <a href="/copyright-disclaimer" className="underline ml-1">Learn more</a></p>
+              </div>
+            </div>
+          </div>
+          */}
+        </div>
+      </div>
+
+      {/* Download Page Ad */}
+      <DownloadPageAd />
     </div>
   );
 }

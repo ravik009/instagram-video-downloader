@@ -70,6 +70,36 @@ export function Header() {
           >
             {t("links.frequentlyAsked")}
           </a>
+          <a
+            href="/privacy-policy"
+            className="text-sm font-medium transition-colors hover:text-teal-500"
+          >
+            Privacy Policy
+          </a>
+          <a
+            href="/terms-of-service"
+            className="text-sm font-medium transition-colors hover:text-teal-500"
+          >
+            Terms of Service
+          </a>
+          <a
+            href="/copyright-disclaimer"
+            className="text-sm font-medium transition-colors hover:text-teal-500"
+          >
+            Copyright
+          </a>
+          <a
+            href="/contact"
+            className="text-sm font-medium transition-colors hover:text-teal-500"
+          >
+            Contact
+          </a>
+          <a
+            href="/dmca"
+            className="text-sm font-medium transition-colors hover:text-red-500"
+          >
+            DMCA
+          </a>
 
           <div className="border-border flex items-center gap-2 border-l pl-2">
             <LocaleDropdown />
@@ -121,6 +151,41 @@ export function Header() {
                     onClick={() => setOpen(false)}
                   >
                     {t("links.frequentlyAsked")}
+                  </a>
+                  <a
+                    href="/privacy-policy"
+                    className="px-2 py-2 text-lg font-medium transition-colors hover:text-teal-500"
+                    onClick={() => setOpen(false)}
+                  >
+                    Privacy Policy
+                  </a>
+                  <a
+                    href="/terms-of-service"
+                    className="px-2 py-2 text-lg font-medium transition-colors hover:text-teal-500"
+                    onClick={() => setOpen(false)}
+                  >
+                    Terms of Service
+                  </a>
+                  <a
+                    href="/copyright-disclaimer"
+                    className="px-2 py-2 text-lg font-medium transition-colors hover:text-teal-500"
+                    onClick={() => setOpen(false)}
+                  >
+                    Copyright
+                  </a>
+                  <a
+                    href="/contact"
+                    className="px-2 py-2 text-lg font-medium transition-colors hover:text-teal-500"
+                    onClick={() => setOpen(false)}
+                  >
+                    Contact
+                  </a>
+                  <a
+                    href="/dmca"
+                    className="px-2 py-2 text-lg font-medium transition-colors hover:text-red-500"
+                    onClick={() => setOpen(false)}
+                  >
+                    DMCA
                   </a>
                 </nav>
               </div>
