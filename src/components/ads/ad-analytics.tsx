@@ -100,4 +100,12 @@ export function withAdAnalytics<T extends object>(
       </>
     );
   };
-} 
+}
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+export {};
