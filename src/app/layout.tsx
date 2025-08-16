@@ -29,7 +29,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className="scroll-smooth" suppressHydrationWarning>
-      <body className={cn("antialiased", geistSans.className)}>
+      <body className={cn("antialiased animated-gradient", geistSans.className)}>
         <LocaleProvider locale={locale} messages={messages}>
           <ThemeProvider>
             <ReactQueryProvider>
